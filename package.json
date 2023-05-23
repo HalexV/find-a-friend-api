@@ -3,8 +3,13 @@
   "version": "1.0.0",
   "description": "Nesse desafio desenvolveremos uma API para a adoção de animais, a FindAFriend API, utilizando SOLID e testes.",
   "main": "index.js",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start:dev": "tsx watch src/server.ts",
+    "start": "node build/server.js",
+    "build": "tsup src -d build"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +24,11 @@
     "eslint-config-prettier": "8.8.0",
     "eslint-plugin-import": "2.27.5",
     "prettier": "2.8.8",
+    "tsup": "6.7.0",
+    "tsx": "3.12.7",
     "typescript": "5.0.4"
+  },
+  "dependencies": {
+    "fastify": "4.17.0"
   }
 }
