@@ -1,0 +1,125 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  password_hash String
+  created_at    DateTime @default(now())
+
+  org Org?
+
+  @@map("users")
+}
+
+model Org {
+  id               String   @id @default(uuid())
+  address          String
+  cep              String
+  city             String
+  latitude         Decimal
+  longitude        Decimal
+  name             String
+  responsible_name String
+  whatsapp_number  String
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  user                 User                   @relation(fields: [user_id], references: [id])
+  user_id              String                 @unique
+  pet                  Pet[]
+  AdoptionRequirements AdoptionRequirements[]
+
+  @@map("orgs")
+}
+
+enum Age {
+  PUPPY
+  ADULT
+  ELDERLY
+}
+
+enum Size {
+  SMALL
+  MEDIUM
+  BIG
+}
+
+enum EnergyLevel {
+  VERY_LOW
+  LOW
+  AVERAGE
+  HIGH
+  VERY_HIGH
+}
+
+enum IndependenceLevel {
+  LOW
+  AVERAGE
+  HIGH
+}
+
+enum Ambience {
+  SMALL
+  MEDIUM
+  BIG
+}
+
+enum Type {
+  CAT
+  DOG
+}
+
+model Pet {
+  id                 String            @id @default(uuid())
+  about              String
+  age                Age
+  ambience           Ambience
+  available          Boolean
+  energy_level       EnergyLevel
+  independence_level IndependenceLevel
+  name               String
+  size               Size
+  type               Type
+  created_at         DateTime          @default(now())
+  updated_at         DateTime          @updatedAt
+
+  org                   Org                    @relation(fields: [org_id], references: [id])
+  org_id                String
+  photo                 Photo[]
+  adoption_requirements AdoptionRequirements[]
+
+  @@map("pets")
+}
+
+model Photo {
+  id         String   @id @default(uuid())
+  url        String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  pet    Pet    @relation(fields: [pet_id], references: [id])
+  pet_id String
+
+  @@map("photos")
+}
+
+model AdoptionRequirements {
+  id         String   @id @default(uuid())
+  title      String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  org    Org    @relation(fields: [org_id], references: [id])
+  org_id String
+  pet    Pet[]
+}
