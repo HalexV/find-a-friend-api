@@ -3,6 +3,7 @@ import { InMemoryOrgsRepository } from '@/repositories/in-memory/in-memory-orgs-
 import argon2 from 'argon2';
 import { OrgAlreadyExistsError } from '../errors/org-already-exists-error';
 import { AuthenticateUseCase } from './authenticate';
+import { InvalidCredentialsError } from '../errors/invalid-credentials-error';
 
 let orgsRepository: InMemoryOrgsRepository;
 let sut: AuthenticateUseCase;
@@ -33,5 +34,14 @@ describe('Orgs - Authenticate Use Case', () => {
     });
 
     expect(org.id).toEqual(expect.any(String));
+  });
+
+  it('should not be able to authenticate with wrong email', async () => {
+    const promise = sut.execute({
+      email: 'org@org.com',
+      password: '12345678',
+    });
+
+    await expect(promise).rejects.toBeInstanceOf(InvalidCredentialsError);
   });
 });
