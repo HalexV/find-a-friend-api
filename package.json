@@ -9,7 +9,9 @@
   "scripts": {
     "start:dev": "tsx watch src/server.ts",
     "start": "node build/server.js",
-    "build": "tsup src -d build"
+    "build": "tsup src -d build",
+    "test": "vitest run",
+    "test:watch": "vitest --reporter='verbose'"
   },
   "keywords": [],
   "author": "",
@@ -27,10 +29,13 @@
     "prisma": "4.14.1",
     "tsup": "6.7.0",
     "tsx": "3.12.7",
-    "typescript": "5.0.4"
+    "typescript": "5.0.4",
+    "vite-tsconfig-paths": "4.2.0",
+    "vitest": "0.31.1"
   },
   "dependencies": {
     "@prisma/client": "4.14.1",
+    "argon2": "0.30.3",
     "dotenv": "16.0.3",
     "fastify": "4.17.0",
     "zod": "3.21.4"
