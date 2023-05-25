@@ -9,3 +9,6 @@ node_modules
 
 # Drawio tmp files
 .$*
+
+# Code coverage
+coverage
