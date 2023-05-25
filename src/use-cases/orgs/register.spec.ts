@@ -1,6 +1,7 @@
 import { expect, describe, it, beforeEach } from 'vitest';
 import { RegisterUseCase } from './register';
 import { InMemoryOrgsRepository } from '@/repositories/in-memory/in-memory-orgs-repository';
+import argon2 from 'argon2';
 
 let orgsRepository: InMemoryOrgsRepository;
 let sut: RegisterUseCase;
@@ -26,5 +27,28 @@ describe('Orgs - Register Use Case', () => {
     });
 
     expect(org.id).toEqual(expect.any(String));
+  });
+
+  it('should be able to hash password', async () => {
+    const { org } = await sut.execute({
+      address: 'Avenida das nações nº 4040',
+      cep: '99999000',
+      city: 'Colorado',
+      email: 'org@org.com',
+      latitude: -12.7569858,
+      longitude: -60.1626287,
+      name: 'Org Adote',
+      password: '12345678',
+      responsible_name: 'John Doe',
+      whatsapp_number: '+55099911223344',
+    });
+
+    const isPasswordCorrectlyHashed = await argon2.verify(
+      org.password_hash,
+      '12345678'
+    );
+
+    expect('12345678').not.toEqual(org.password_hash);
+    expect(isPasswordCorrectlyHashed).toBeTruthy();
   });
 });
