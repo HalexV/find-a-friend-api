@@ -44,4 +44,26 @@ describe('Orgs - Authenticate Use Case', () => {
 
     await expect(promise).rejects.toBeInstanceOf(InvalidCredentialsError);
   });
+
+  it('should not be able to authenticate with wrong password', async () => {
+    await orgsRepository.create({
+      address: 'Avenida das nações nº 4040',
+      cep: '99999000',
+      city: 'Colorado',
+      email: 'org@org.com',
+      latitude: -12.7569858,
+      longitude: -60.1626287,
+      name: 'Org Adote',
+      password_hash: await argon2.hash('12345678'),
+      responsible_name: 'John Doe',
+      whatsapp_number: '+55099911223344',
+    });
+
+    const promise = sut.execute({
+      email: 'org@org.com',
+      password: '12345679',
+    });
+
+    await expect(promise).rejects.toBeInstanceOf(InvalidCredentialsError);
+  });
 });
