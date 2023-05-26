@@ -25,8 +25,8 @@ model Org {
   created_at       DateTime @default(now())
   updated_at       DateTime @updatedAt
 
-  pet                  Pet[]
-  AdoptionRequirements AdoptionRequirements[]
+  pets                 Pet[]
+  AdoptionRequirements AdoptionRequirement[]
 
   @@map("orgs")
 }
@@ -82,10 +82,10 @@ model Pet {
   created_at         DateTime          @default(now())
   updated_at         DateTime          @updatedAt
 
-  org                   Org                    @relation(fields: [org_id], references: [id])
+  org                   Org                   @relation(fields: [org_id], references: [id])
   org_id                String
-  photo                 Photo[]
-  adoption_requirements AdoptionRequirements[]
+  photos                Photo[]
+  adoption_requirements AdoptionRequirement[]
 
   @@map("pets")
 }
@@ -102,7 +102,7 @@ model Photo {
   @@map("photos")
 }
 
-model AdoptionRequirements {
+model AdoptionRequirement {
   id         String   @id @default(uuid())
   title      String
   created_at DateTime @default(now())
@@ -110,5 +110,7 @@ model AdoptionRequirements {
 
   org    Org    @relation(fields: [org_id], references: [id])
   org_id String
-  pet    Pet[]
+  pets   Pet[]
+
+  @@map("adoption_requirements")
 }
