@@ -4,6 +4,7 @@ import { CreateAdoptionRequirementUseCase } from './create-adoption-requirement'
 import { InMemoryAdoptionRequirementsRepository } from '@/repositories/in-memory/in-memory-adoption-requirements-repository';
 
 import argon2 from 'argon2';
+import { ResourceNotFoundError } from '../errors/resource-not-found-error';
 
 let adoptionRequirementsRepository: InMemoryAdoptionRequirementsRepository;
 let orgsRepository: InMemoryOrgsRepository;
@@ -44,5 +45,14 @@ describe('Adoption Requirements - Create Use Case', () => {
     expect(adoptionRequirement.title).toEqual(
       'Cachorro peludo precisa de ambiente frio.'
     );
+  });
+
+  it('should not be able to create an adoption requirement when org does not exist', async () => {
+    const promise = sut.execute({
+      orgId: 'non-existent-id',
+      title: 'Cachorro peludo precisa de ambiente frio.',
+    });
+
+    await expect(promise).rejects.toBeInstanceOf(ResourceNotFoundError);
   });
 });
