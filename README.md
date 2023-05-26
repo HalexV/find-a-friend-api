@@ -9,6 +9,7 @@ Nesse desafio desenvolveremos uma API para a adoção de animais, a FindAFriend 
 - [x] Deve ser possível se cadastrar como uma ORG
 - [x] Deve ser possível se autenticar como uma ORG
 - [] Deve ser possível realizar login como uma ORG
+- [x] Deve ser possível cadastrar requisitos de adoção
 
 ### Regras de negócio
 
