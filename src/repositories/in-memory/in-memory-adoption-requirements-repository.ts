@@ -22,4 +22,12 @@ export class InMemoryAdoptionRequirementsRepository
 
     return adoptionRequirement;
   }
+
+  async findById(id: string) {
+    const adoptionRequirement = this.items.find((item) => item.id === id);
+
+    if (!adoptionRequirement) return null;
+
+    return adoptionRequirement;
+  }
 }
