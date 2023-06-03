@@ -11,6 +11,7 @@ import {
 import { ResourceNotFoundError } from '../errors/resource-not-found-error';
 import { AdoptionRequirementsRepository } from '@/repositories/adoption-requirements-repository';
 import { PetsRepository } from '@/repositories/pets-repository';
+// import { prisma } from '@/lib/prisma';
 
 interface Photo {
   title: string;
@@ -37,7 +38,9 @@ interface RegisterPetUseCaseRequest {
 interface RegisterPetUseCaseResponse {
   pet: Pet;
 }
+// const a = await prisma.pet.create({data: {about:'',age: 'ADULT',ambience: 'BIG',available:true, energy_level:'AVERAGE',independence_level:'AVERAGE',name: '',size: 'BIG',type: 'CAT',adoption_requirements: {connect: {id: 'asd'}},org_id: 'asd'},include: {adoption_requirements:{select: {id: true}}}});
 
+// a.
 export class RegisterPetUseCase {
   constructor(
     private orgsRepository: OrgsRepository,

@@ -6,13 +6,15 @@ export interface PetWithAdoptionRequirements extends Pet {
 }
 
 export interface PetCreateInput
-  extends Omit<Prisma.PetUncheckedCreateInput, 'adoption_requirements'> {
+  extends Omit<
+    Prisma.PetUncheckedCreateInput,
+    'adoption_requirements' | 'photos'
+  > {
   adoption_requirements: string[];
 }
-
 export abstract class PetsRepository {
   constructor(
-    private adoptionRequirementsRepository: AdoptionRequirementsRepository
+    public adoptionRequirementsRepository: AdoptionRequirementsRepository
   ) {}
 
   abstract create(data: PetCreateInput): Promise<PetWithAdoptionRequirements>;

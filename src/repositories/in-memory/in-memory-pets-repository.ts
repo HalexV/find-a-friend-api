@@ -4,6 +4,7 @@ import {
   PetsRepository,
 } from '../pets-repository';
 import { randomUUID } from 'node:crypto';
+import { AdoptionRequirementWithPets } from './in-memory-adoption-requirements-repository';
 
 export class InMemoryPetsRepository extends PetsRepository {
   public items: PetWithAdoptionRequirements[] = [];
@@ -28,8 +29,25 @@ export class InMemoryPetsRepository extends PetsRepository {
       updated_at: createdAt,
     };
 
+    const adoptionRequirementsTitles = [];
+
+    for (const id of data.adoption_requirements) {
+      const adoptionRequirement =
+        (await this.adoptionRequirementsRepository.findById(
+          id
+        )) as AdoptionRequirementWithPets;
+
+      adoptionRequirementsTitles.push(adoptionRequirement.title);
+
+      adoptionRequirement.pets.push(pet.id);
+    }
+
     this.items.push(pet);
 
-    return pet;
+    const petWithAdoptionRequirementsTitles = Object.assign({}, pet, {
+      adoption_requirements: adoptionRequirementsTitles,
+    });
+
+    return petWithAdoptionRequirementsTitles;
   }
 }
