@@ -10,6 +10,7 @@ import {
 } from '@prisma/client';
 import { ResourceNotFoundError } from '../errors/resource-not-found-error';
 import { AdoptionRequirementsRepository } from '@/repositories/adoption-requirements-repository';
+import { PetsRepository } from '@/repositories/pets-repository';
 
 interface Photo {
   title: string;
@@ -22,7 +23,7 @@ interface RegisterPetUseCaseRequest {
   about: string;
   age: Age;
   ambience: Ambience;
-  available: Boolean;
+  available: boolean;
   energyLevel: EnergyLevel;
   independenceLevel: IndependenceLevel;
   name: string;
@@ -40,7 +41,8 @@ interface RegisterPetUseCaseResponse {
 export class RegisterPetUseCase {
   constructor(
     private orgsRepository: OrgsRepository,
-    private adoptionRequirementsRepository: AdoptionRequirementsRepository
+    private adoptionRequirementsRepository: AdoptionRequirementsRepository,
+    private petsRepository: PetsRepository
   ) {}
 
   async execute({
@@ -69,6 +71,19 @@ export class RegisterPetUseCase {
     }
 
     // Create pet and relate with adoption requirements (if exists)
+    await this.petsRepository.create({
+      about,
+      age,
+      ambience,
+      available,
+      energy_level: energyLevel,
+      independence_level: independenceLevel,
+      name,
+      size,
+      type,
+      org_id: orgId,
+      adoption_requirements: adoptionRequirementsIds,
+    });
 
     // Create photos with pet_id
   }
