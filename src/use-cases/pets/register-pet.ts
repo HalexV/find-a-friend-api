@@ -4,20 +4,22 @@ import {
   Ambience,
   EnergyLevel,
   IndependenceLevel,
-  Pet,
   Size,
   Type,
 } from '@prisma/client';
 import { ResourceNotFoundError } from '../errors/resource-not-found-error';
 import { AdoptionRequirementsRepository } from '@/repositories/adoption-requirements-repository';
-import { PetsRepository } from '@/repositories/pets-repository';
+import {
+  PetWithAdoptionRequirements,
+  PetsRepository,
+} from '@/repositories/pets-repository';
+import { Readable } from 'node:stream';
+import { PhotosRepository } from '@/repositories/photos-repository';
 // import { prisma } from '@/lib/prisma';
 
-interface Photo {
-  title: string;
-  file: any;
-  datetime: Date;
-  size: number;
+interface PhotoStream {
+  file: Readable;
+  type: 'JPEG';
 }
 
 interface RegisterPetUseCaseRequest {
@@ -31,21 +33,20 @@ interface RegisterPetUseCaseRequest {
   size: Size;
   type: Type;
   orgId: string;
-  photos?: ReadableStream<Photo>;
+  photos: PhotoStream[];
   adoptionRequirementsIds: string[];
 }
 
 interface RegisterPetUseCaseResponse {
-  pet: Pet;
+  pet: PetWithAdoptionRequirements & { photos: string[] };
 }
-// const a = await prisma.pet.create({data: {about:'',age: 'ADULT',ambience: 'BIG',available:true, energy_level:'AVERAGE',independence_level:'AVERAGE',name: '',size: 'BIG',type: 'CAT',adoption_requirements: {connect: {id: 'asd'}},org_id: 'asd'},include: {adoption_requirements:{select: {id: true}}}});
 
-// a.
 export class RegisterPetUseCase {
   constructor(
     private orgsRepository: OrgsRepository,
     private adoptionRequirementsRepository: AdoptionRequirementsRepository,
-    private petsRepository: PetsRepository
+    private petsRepository: PetsRepository,
+    private photosRepository: PhotosRepository
   ) {}
 
   async execute({
@@ -61,7 +62,7 @@ export class RegisterPetUseCase {
     orgId,
     photos,
     adoptionRequirementsIds,
-  }: RegisterPetUseCaseRequest): Promise<void> {
+  }: RegisterPetUseCaseRequest): Promise<RegisterPetUseCaseResponse> {
     const org = await this.orgsRepository.findById(orgId);
 
     if (!org) throw new ResourceNotFoundError();
@@ -73,8 +74,7 @@ export class RegisterPetUseCase {
       if (!adoptionRequirement) throw new ResourceNotFoundError();
     }
 
-    // Create pet and relate with adoption requirements (if exists)
-    await this.petsRepository.create({
+    const pet = await this.petsRepository.create({
       about,
       age,
       ambience,
@@ -88,6 +88,19 @@ export class RegisterPetUseCase {
       adoption_requirements: adoptionRequirementsIds,
     });
 
-    // Create photos with pet_id
+    const petWithAdoptionRequirementsAndPhotos = Object.assign({}, pet, {
+      photos: [] as string[],
+    });
+
+    for (const photoObject of photos) {
+      const photo = await this.photosRepository.create({
+        file: photoObject.file,
+        petId: pet.id,
+      });
+
+      petWithAdoptionRequirementsAndPhotos.photos.push(photo.url);
+    }
+
+    return { pet: petWithAdoptionRequirementsAndPhotos };
   }
 }
