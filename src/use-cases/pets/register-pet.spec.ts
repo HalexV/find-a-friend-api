@@ -1,13 +1,31 @@
-import { expect, describe, it, beforeEach, vi, afterEach } from 'vitest';
+import {
+  expect,
+  describe,
+  it,
+  beforeEach,
+  vi,
+  afterEach,
+  afterAll,
+} from 'vitest';
 import { RegisterPetUseCase } from './register-pet';
 import { InMemoryOrgsRepository } from '@/repositories/in-memory/in-memory-orgs-repository';
 import { ResourceNotFoundError } from '../errors/resource-not-found-error';
 import { InMemoryAdoptionRequirementsRepository } from '@/repositories/in-memory/in-memory-adoption-requirements-repository';
 import { InMemoryPetsRepository } from '@/repositories/in-memory/in-memory-pets-repository';
 
+import { open } from 'node:fs/promises';
+import { join } from 'node:path';
+import { Readable } from 'node:stream';
+import { InMemoryPhotosRepository } from '@/repositories/in-memory/in-memory-photos-repository';
+
+const basePath = join(__dirname, '../../utils/test/images');
+
+const streams: Readable[] = [];
+
 let orgsRepository: InMemoryOrgsRepository;
 let adoptionRequirementsRepository: InMemoryAdoptionRequirementsRepository;
 let petsRepository: InMemoryPetsRepository;
+let photosRepository: InMemoryPhotosRepository;
 let sut: RegisterPetUseCase;
 
 describe('Pets - Register Use Case', () => {
@@ -16,11 +34,13 @@ describe('Pets - Register Use Case', () => {
     adoptionRequirementsRepository =
       new InMemoryAdoptionRequirementsRepository();
     petsRepository = new InMemoryPetsRepository(adoptionRequirementsRepository);
+    photosRepository = new InMemoryPhotosRepository();
 
     sut = new RegisterPetUseCase(
       orgsRepository,
       adoptionRequirementsRepository,
-      petsRepository
+      petsRepository,
+      photosRepository
     );
 
     vi.useFakeTimers();
@@ -28,6 +48,10 @@ describe('Pets - Register Use Case', () => {
 
   afterEach(() => {
     vi.useRealTimers();
+  });
+
+  afterAll(() => {
+    streams.forEach((stream) => stream.destroy());
   });
 
   it('should not be able to register a pet when org does not exist', async () => {
@@ -43,6 +67,7 @@ describe('Pets - Register Use Case', () => {
       orgId: 'non-existent-id',
       size: 'MEDIUM',
       type: 'DOG',
+      photos: [],
     });
 
     await expect(promise).rejects.toBeInstanceOf(ResourceNotFoundError);
@@ -79,6 +104,7 @@ describe('Pets - Register Use Case', () => {
       orgId: org.id,
       size: 'MEDIUM',
       type: 'DOG',
+      photos: [],
     });
 
     await expect(promise).rejects.toBeInstanceOf(ResourceNotFoundError);
@@ -114,6 +140,7 @@ describe('Pets - Register Use Case', () => {
       orgId: org.id,
       size: 'MEDIUM',
       type: 'DOG',
+      photos: [],
     });
 
     const expectedPet = {
@@ -180,6 +207,7 @@ describe('Pets - Register Use Case', () => {
       orgId: org.id,
       size: 'MEDIUM',
       type: 'DOG',
+      photos: [],
     });
 
     const expectedPet = {
@@ -199,6 +227,70 @@ describe('Pets - Register Use Case', () => {
     };
 
     const pet = petsRepository.items[0];
+
+    expect(pet).toMatchObject(expectedPet);
+  });
+
+  it('should be able to create a pet with photos', async () => {
+    const createdAt = new Date('2023-01-01');
+
+    vi.setSystemTime(createdAt);
+
+    const fd1 = await open(join(basePath, 'image1.jpg'));
+    const fd2 = await open(join(basePath, 'image2.jpg'));
+
+    const stream1 = fd1.createReadStream();
+    const stream2 = fd2.createReadStream();
+
+    streams.push(stream1, stream2);
+
+    const org = await orgsRepository.create({
+      address: 'Avenida das nações nº 4040',
+      cep: '99999000',
+      city: 'Colorado',
+      email: 'org@org.com',
+      latitude: -12.7569858,
+      longitude: -60.1626287,
+      name: 'Org Adote',
+      password_hash: '12345678',
+      responsible_name: 'John Doe',
+      whatsapp_number: '+55099911223344',
+    });
+
+    const { pet } = await sut.execute({
+      about: 'any',
+      adoptionRequirementsIds: [],
+      age: 'PUPPY',
+      ambience: 'MEDIUM',
+      available: true,
+      energyLevel: 'AVERAGE',
+      independenceLevel: 'HIGH',
+      name: 'Mark',
+      orgId: org.id,
+      size: 'MEDIUM',
+      type: 'DOG',
+      photos: [
+        { file: stream1, type: 'JPEG' },
+        { file: stream2, type: 'JPEG' },
+      ],
+    });
+
+    const expectedPet = {
+      about: 'any',
+      adoption_requirements: [],
+      age: 'PUPPY',
+      ambience: 'MEDIUM',
+      available: true,
+      energy_level: 'AVERAGE',
+      independence_level: 'HIGH',
+      name: 'Mark',
+      org_id: org.id,
+      size: 'MEDIUM',
+      type: 'DOG',
+      photos: [expect.any(String), expect.any(String)],
+      created_at: createdAt,
+      updated_at: createdAt,
+    };
 
     expect(pet).toMatchObject(expectedPet);
   });
