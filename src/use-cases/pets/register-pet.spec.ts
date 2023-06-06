@@ -44,6 +44,7 @@ describe('Pets - Register Use Case', () => {
     );
 
     vi.useFakeTimers();
+    vi.restoreAllMocks();
   });
 
   afterEach(() => {
@@ -293,5 +294,77 @@ describe('Pets - Register Use Case', () => {
     };
 
     expect(pet).toMatchObject(expectedPet);
+  });
+
+  it('should be able to revert pet register when photo registration has errors', async () => {
+    const createdAt = new Date('2023-01-01');
+
+    vi.setSystemTime(createdAt);
+
+    const photoCreate = photosRepository.create.bind(photosRepository);
+
+    vi.spyOn(photosRepository, 'create')
+      .mockImplementationOnce(photoCreate)
+      .mockImplementationOnce(() => {
+        throw new Error();
+      });
+
+    const fd1 = await open(join(basePath, 'image1.jpg'));
+    const fd2 = await open(join(basePath, 'image2.jpg'));
+
+    const stream1 = fd1.createReadStream();
+    const stream2 = fd2.createReadStream();
+
+    streams.push(stream1, stream2);
+
+    const org = await orgsRepository.create({
+      address: 'Avenida das nações nº 4040',
+      cep: '99999000',
+      city: 'Colorado',
+      email: 'org@org.com',
+      latitude: -12.7569858,
+      longitude: -60.1626287,
+      name: 'Org Adote',
+      password_hash: '12345678',
+      responsible_name: 'John Doe',
+      whatsapp_number: '+55099911223344',
+    });
+
+    const adoptionRequirementA = await adoptionRequirementsRepository.create({
+      org_id: org.id,
+      title: 'Cold weather',
+    });
+
+    const adoptionRequirementB = await adoptionRequirementsRepository.create({
+      org_id: org.id,
+      title: 'It needs a yard',
+    });
+
+    const promise = sut.execute({
+      about: 'any',
+      adoptionRequirementsIds: [
+        adoptionRequirementA.id,
+        adoptionRequirementB.id,
+      ],
+      age: 'PUPPY',
+      ambience: 'MEDIUM',
+      available: true,
+      energyLevel: 'AVERAGE',
+      independenceLevel: 'HIGH',
+      name: 'Mark',
+      orgId: org.id,
+      size: 'MEDIUM',
+      type: 'DOG',
+      photos: [
+        { file: stream1, type: 'JPEG' },
+        { file: stream2, type: 'JPEG' },
+      ],
+    });
+
+    await expect(promise).rejects.toThrowError();
+    expect(photosRepository.items.length).toBe(0);
+    expect(petsRepository.items.length).toBe(0);
+    expect(adoptionRequirementsRepository.items[0].pets.length).toBe(0);
+    expect(adoptionRequirementsRepository.items[1].pets.length).toBe(0);
   });
 });
