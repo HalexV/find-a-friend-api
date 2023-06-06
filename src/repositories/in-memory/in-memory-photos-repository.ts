@@ -24,4 +24,10 @@ export class InMemoryPhotosRepository implements PhotosRepository {
 
     return photo;
   }
+
+  async delete(id: string) {
+    const photoIndex = this.items.findIndex((photo) => photo.id === id);
+
+    this.items.splice(photoIndex, 1);
+  }
 }

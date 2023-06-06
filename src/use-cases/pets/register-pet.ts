@@ -92,13 +92,27 @@ export class RegisterPetUseCase {
       photos: [] as string[],
     });
 
-    for (const photoObject of photos) {
-      const photo = await this.photosRepository.create({
-        file: photoObject.file,
-        petId: pet.id,
-      });
+    const photoIds = [];
 
-      petWithAdoptionRequirementsAndPhotos.photos.push(photo.url);
+    try {
+      for (const photoObject of photos) {
+        const photo = await this.photosRepository.create({
+          file: photoObject.file,
+          petId: pet.id,
+        });
+
+        photoIds.push(photo.id);
+
+        petWithAdoptionRequirementsAndPhotos.photos.push(photo.url);
+      }
+    } catch (error) {
+      for (const id of photoIds) {
+        await this.photosRepository.delete(id);
+      }
+
+      await this.petsRepository.delete(pet.id);
+
+      throw error;
     }
 
     return { pet: petWithAdoptionRequirementsAndPhotos };

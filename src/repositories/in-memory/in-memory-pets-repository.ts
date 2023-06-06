@@ -50,4 +50,22 @@ export class InMemoryPetsRepository extends PetsRepository {
 
     return petWithAdoptionRequirementsTitles;
   }
+
+  async delete(id: string) {
+    const petIndex = this.items.findIndex((pet) => pet.id === id);
+    const pet = this.items[petIndex];
+
+    for (const id of pet.adoption_requirements) {
+      const adoptionRequirement =
+        (await this.adoptionRequirementsRepository.findById(
+          id
+        )) as AdoptionRequirementWithPets;
+      const petIndex = adoptionRequirement.pets.findIndex(
+        (petId) => petId === pet.id
+      );
+      adoptionRequirement.pets.splice(petIndex, 1);
+    }
+
+    this.items.splice(petIndex, 1);
+  }
 }

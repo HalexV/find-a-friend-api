@@ -18,4 +18,5 @@ export abstract class PetsRepository {
   ) {}
 
   abstract create(data: PetCreateInput): Promise<PetWithAdoptionRequirements>;
+  abstract delete(id: string): Promise<void>;
 }
