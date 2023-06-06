@@ -4,6 +4,7 @@ import {
   Ambience,
   EnergyLevel,
   IndependenceLevel,
+  Pet,
   Size,
   Type,
 } from '@prisma/client';
@@ -37,8 +38,13 @@ interface RegisterPetUseCaseRequest {
   adoptionRequirementsIds: string[];
 }
 
+export interface PetComplete extends Pet {
+  adoption_requirements: string[];
+  photos: string[];
+}
+
 interface RegisterPetUseCaseResponse {
-  pet: PetWithAdoptionRequirements & { photos: string[] };
+  pet: PetComplete;
 }
 
 export class RegisterPetUseCase {
