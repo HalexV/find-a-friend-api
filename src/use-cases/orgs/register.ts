@@ -47,7 +47,7 @@ export class RegisterUseCase {
     const org = await this.orgsRepository.create({
       address,
       cep,
-      city,
+      city: city.toLocaleLowerCase(),
       email,
       latitude,
       longitude,
