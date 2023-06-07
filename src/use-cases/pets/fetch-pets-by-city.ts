@@ -10,6 +10,8 @@ import {
 
 import { PetComplete } from './register-pet';
 import { ResourceNotFoundError } from '../errors/resource-not-found-error';
+import { PetsRepository } from '@/repositories/pets-repository';
+import { PhotosRepository } from '@/repositories/photos-repository';
 
 interface FetchPetsFilters {
   age?: Age;
@@ -30,12 +32,16 @@ interface FetchPetsByCityUseCaseResponse {
 }
 
 export class FetchPetsByCityUseCase {
-  constructor(private orgsRepository: OrgsRepository) {}
+  constructor(
+    private orgsRepository: OrgsRepository,
+    private petsRepository: PetsRepository,
+    private photosRepository: PhotosRepository
+  ) {}
 
   async execute({
     city,
     filters,
-  }: FetchPetsByCityUseCaseRequest): Promise<void> {
+  }: FetchPetsByCityUseCaseRequest): Promise<FetchPetsByCityUseCaseResponse> {
     const orgs = await this.orgsRepository.findManyByCity(
       city.toLocaleLowerCase()
     );
@@ -43,5 +49,25 @@ export class FetchPetsByCityUseCase {
     if (orgs.length === 0) {
       throw new ResourceNotFoundError();
     }
+
+    const pets = await this.petsRepository.findManyByOrgIds(
+      orgs.map((org) => org.id)
+    );
+
+    console.log(pets);
+
+    const completedPets = [];
+
+    for (const pet of pets) {
+      const photos = await this.photosRepository.findManyByPetId(pet.id);
+
+      completedPets.push(
+        Object.assign({}, pet, { photos: photos.map((photo) => photo.url) })
+      );
+    }
+
+    return {
+      pets: completedPets,
+    };
   }
 }

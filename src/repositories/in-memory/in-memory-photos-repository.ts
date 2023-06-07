@@ -25,6 +25,12 @@ export class InMemoryPhotosRepository implements PhotosRepository {
     return photo;
   }
 
+  async findManyByPetId(id: string) {
+    const photos = this.items.filter((photo) => photo.pet_id === id);
+
+    return photos;
+  }
+
   async delete(id: string) {
     const photoIndex = this.items.findIndex((photo) => photo.id === id);
 

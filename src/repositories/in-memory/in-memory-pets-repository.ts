@@ -51,6 +51,27 @@ export class InMemoryPetsRepository extends PetsRepository {
     return petWithAdoptionRequirementsTitles;
   }
 
+  async findManyByOrgIds(orgIds: string[]) {
+    const pets = this.items.filter((pet) => orgIds.includes(pet.org_id));
+
+    for (const pet of pets) {
+      const adoptionRequirementsTitles = [];
+
+      for (const id of pet.adoption_requirements) {
+        const adoptionRequirement =
+          await this.adoptionRequirementsRepository.findById(id);
+
+        if (!adoptionRequirement) continue;
+
+        adoptionRequirementsTitles.push(adoptionRequirement.title);
+      }
+
+      pet.adoption_requirements = adoptionRequirementsTitles;
+    }
+
+    return pets;
+  }
+
   async delete(id: string) {
     const petIndex = this.items.findIndex((pet) => pet.id === id);
     const pet = this.items[petIndex];

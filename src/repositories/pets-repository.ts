@@ -14,9 +14,12 @@ export interface PetCreateInput
 }
 export abstract class PetsRepository {
   constructor(
-    public adoptionRequirementsRepository: AdoptionRequirementsRepository
+    protected adoptionRequirementsRepository: AdoptionRequirementsRepository
   ) {}
 
   abstract create(data: PetCreateInput): Promise<PetWithAdoptionRequirements>;
   abstract delete(id: string): Promise<void>;
+  abstract findManyByOrgIds(
+    orgIds: string[]
+  ): Promise<PetWithAdoptionRequirements[]>;
 }
