@@ -50,11 +50,10 @@ export class FetchPetsByCityUseCase {
       throw new ResourceNotFoundError();
     }
 
-    const pets = await this.petsRepository.findManyByOrgIds(
-      orgs.map((org) => org.id)
-    );
-
-    console.log(pets);
+    const pets = await this.petsRepository.findManyByOrgIds({
+      orgIds: orgs.map((org) => org.id),
+      filters: { ...filters, available: true },
+    });
 
     const completedPets = [];
 

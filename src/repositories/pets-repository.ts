@@ -1,8 +1,35 @@
-import { Pet, Prisma } from '@prisma/client';
+import {
+  Age,
+  Ambience,
+  EnergyLevel,
+  IndependenceLevel,
+  Pet,
+  Prisma,
+  Size,
+  Type,
+} from '@prisma/client';
 import { AdoptionRequirementsRepository } from './adoption-requirements-repository';
 
 export interface PetWithAdoptionRequirements extends Pet {
   adoption_requirements: string[];
+}
+
+interface Filters {
+  age?: Age;
+  ambience?: Ambience;
+  energy_level?: EnergyLevel;
+  independence_level?: IndependenceLevel;
+  size?: Size;
+  type?: Type[];
+  available?: boolean;
+}
+
+interface PetFindIpunt {
+  filters?: Filters;
+}
+
+export interface PetFindManyByOrgIds extends PetFindIpunt {
+  orgIds: string[];
 }
 
 export interface PetCreateInput
@@ -20,6 +47,6 @@ export abstract class PetsRepository {
   abstract create(data: PetCreateInput): Promise<PetWithAdoptionRequirements>;
   abstract delete(id: string): Promise<void>;
   abstract findManyByOrgIds(
-    orgIds: string[]
+    data: PetFindManyByOrgIds
   ): Promise<PetWithAdoptionRequirements[]>;
 }

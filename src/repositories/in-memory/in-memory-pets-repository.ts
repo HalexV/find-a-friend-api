@@ -1,11 +1,30 @@
 import {
   PetCreateInput,
+  PetFindManyByOrgIds,
   PetWithAdoptionRequirements,
   PetsRepository,
 } from '../pets-repository';
 import { randomUUID } from 'node:crypto';
 import { AdoptionRequirementWithPets } from './in-memory-adoption-requirements-repository';
+import { extractProperties } from '@/utils/extractProperties';
+import {
+  Age,
+  Ambience,
+  EnergyLevel,
+  IndependenceLevel,
+  Size,
+  Type,
+} from '@prisma/client';
 
+interface Filters {
+  age: Age;
+  ambience: Ambience;
+  energy_level: EnergyLevel;
+  independence_level: IndependenceLevel;
+  size: Size;
+  type: Type[];
+  available: boolean;
+}
 export class InMemoryPetsRepository extends PetsRepository {
   public items: PetWithAdoptionRequirements[] = [];
 
@@ -51,8 +70,46 @@ export class InMemoryPetsRepository extends PetsRepository {
     return petWithAdoptionRequirementsTitles;
   }
 
-  async findManyByOrgIds(orgIds: string[]) {
-    const pets = this.items.filter((pet) => orgIds.includes(pet.org_id));
+  async findManyByOrgIds({ orgIds, filters }: PetFindManyByOrgIds) {
+    const selectedFilters = extractProperties(
+      [
+        'age',
+        'ambience',
+        'energy_level',
+        'independence_level',
+        'size',
+        'type',
+        'available',
+      ],
+      filters
+    ) as Filters | null;
+
+    const pets = this.items.filter((pet) => {
+      const doesOrgIdsInclude = orgIds.includes(pet.org_id);
+      let matchFilters = true;
+
+      if (selectedFilters) {
+        for (const key of Object.keys(selectedFilters) as Array<
+          keyof Filters
+        >) {
+          if (key === 'type') {
+            if (!selectedFilters[key].includes(pet[key])) {
+              matchFilters = false;
+              break;
+            }
+          } else {
+            if (pet[key] !== selectedFilters[key]) {
+              matchFilters = false;
+              break;
+            }
+          }
+        }
+      }
+
+      return doesOrgIdsInclude && matchFilters;
+    });
+
+    const filteredPets = [];
 
     for (const pet of pets) {
       const adoptionRequirementsTitles = [];
@@ -66,10 +123,14 @@ export class InMemoryPetsRepository extends PetsRepository {
         adoptionRequirementsTitles.push(adoptionRequirement.title);
       }
 
-      pet.adoption_requirements = adoptionRequirementsTitles;
+      filteredPets.push(
+        Object.assign({}, pet, {
+          adoption_requirements: adoptionRequirementsTitles,
+        })
+      );
     }
 
-    return pets;
+    return filteredPets;
   }
 
   async delete(id: string) {
