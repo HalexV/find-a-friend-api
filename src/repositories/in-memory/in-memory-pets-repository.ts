@@ -70,6 +70,29 @@ export class InMemoryPetsRepository extends PetsRepository {
     return petWithAdoptionRequirementsTitles;
   }
 
+  async findById(id: string) {
+    const pet = this.items.find((pet) => pet.id === id);
+
+    if (!pet) return null;
+
+    const adoptionRequirementsTitles = [];
+
+    for (const id of pet.adoption_requirements) {
+      const adoptionRequirement =
+        await this.adoptionRequirementsRepository.findById(id);
+
+      if (!adoptionRequirement) continue;
+
+      adoptionRequirementsTitles.push(adoptionRequirement.title);
+    }
+
+    const petWithAdoptionRequirementsTitles = Object.assign({}, pet, {
+      adoption_requirements: adoptionRequirementsTitles,
+    });
+
+    return petWithAdoptionRequirementsTitles;
+  }
+
   async findManyByOrgIds({ orgIds, filters }: PetFindManyByOrgIds) {
     const selectedFilters = extractProperties(
       [

@@ -46,6 +46,7 @@ export abstract class PetsRepository {
 
   abstract create(data: PetCreateInput): Promise<PetWithAdoptionRequirements>;
   abstract delete(id: string): Promise<void>;
+  abstract findById(id: string): Promise<PetWithAdoptionRequirements | null>;
   abstract findManyByOrgIds(
     data: PetFindManyByOrgIds
   ): Promise<PetWithAdoptionRequirements[]>;
