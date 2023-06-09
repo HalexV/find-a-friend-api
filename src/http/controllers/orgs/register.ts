@@ -1,3 +1,4 @@
+import { OrgAlreadyExistsError } from '@/use-cases/errors/org-already-exists-error';
 import { makeRegisterUseCase } from '@/use-cases/factories/make-register-use-case';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
@@ -49,6 +50,10 @@ export async function register(request: FastifyRequest, reply: FastifyReply) {
       whatsapp_number: whatsappNumber,
     });
   } catch (error) {
+    if (error instanceof OrgAlreadyExistsError) {
+      return reply.status(409).send();
+    }
+
     throw error;
   }
 
