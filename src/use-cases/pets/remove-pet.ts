@@ -1,15 +1,8 @@
 import { ResourceNotFoundError } from '../errors/resource-not-found-error';
-import {
-  PetWithAdoptionRequirements,
-  PetsRepository,
-} from '@/repositories/pets-repository';
+import { PetsRepository } from '@/repositories/pets-repository';
 
 interface RemovePetUseCaseRequest {
   petId: string;
-}
-
-interface RemovePetUseCaseResponse {
-  pet: PetWithAdoptionRequirements;
 }
 
 export class RemovePetUseCase {
@@ -21,5 +14,7 @@ export class RemovePetUseCase {
     if (!pet) {
       throw new ResourceNotFoundError();
     }
+
+    await this.petsRepository.delete(petId);
   }
 }
