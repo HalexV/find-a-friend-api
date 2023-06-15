@@ -1,0 +1,24 @@
+import { expect, describe, it, beforeEach } from 'vitest';
+
+import { InMemoryPhotosRepository } from '@/repositories/in-memory/in-memory-photos-repository';
+import { ResourceNotFoundError } from '../errors/resource-not-found-error';
+import { RemovePhotoUseCase } from './remove-photo';
+
+let photosRepository: InMemoryPhotosRepository;
+let sut: RemovePhotoUseCase;
+
+describe('Photos - Register Photo Use Case', () => {
+  beforeEach(() => {
+    photosRepository = new InMemoryPhotosRepository();
+
+    sut = new RemovePhotoUseCase(photosRepository);
+  });
+
+  it('should not be able to remove a pet photo when photo does not exist', async () => {
+    const promise = sut.execute({
+      photoId: 'non-existent-id',
+    });
+
+    await expect(promise).rejects.toBeInstanceOf(ResourceNotFoundError);
+  });
+});
