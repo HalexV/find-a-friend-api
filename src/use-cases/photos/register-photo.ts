@@ -31,6 +31,7 @@ export class RegisterPhotoUseCase {
     const pet = await this.petsRepository.findById(petId);
 
     if (!pet) {
+      photo.file.destroy();
       throw new ResourceNotFoundError();
     }
 
