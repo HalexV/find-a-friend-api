@@ -4,7 +4,6 @@ import {
   Ambience,
   EnergyLevel,
   IndependenceLevel,
-  Pet,
   Size,
   Type,
 } from '@prisma/client';
@@ -14,14 +13,6 @@ import {
   PetWithAdoptionRequirements,
   PetsRepository,
 } from '@/repositories/pets-repository';
-import { Readable } from 'node:stream';
-import { PhotosRepository } from '@/repositories/photos-repository';
-// import { prisma } from '@/lib/prisma';
-
-interface PhotoStream {
-  file: Readable;
-  type: 'JPEG';
-}
 
 interface RegisterPetUseCaseRequest {
   about: string;
@@ -34,25 +25,18 @@ interface RegisterPetUseCaseRequest {
   size: Size;
   type: Type;
   orgId: string;
-  photos: PhotoStream[];
   adoptionRequirementsIds: string[];
 }
 
-export interface PetComplete extends Pet {
-  adoption_requirements: string[];
-  photos: string[];
-}
-
 interface RegisterPetUseCaseResponse {
-  pet: PetComplete;
+  pet: PetWithAdoptionRequirements;
 }
 
 export class RegisterPetUseCase {
   constructor(
     private orgsRepository: OrgsRepository,
     private adoptionRequirementsRepository: AdoptionRequirementsRepository,
-    private petsRepository: PetsRepository,
-    private photosRepository: PhotosRepository
+    private petsRepository: PetsRepository
   ) {}
 
   async execute({
@@ -66,7 +50,6 @@ export class RegisterPetUseCase {
     size,
     type,
     orgId,
-    photos,
     adoptionRequirementsIds,
   }: RegisterPetUseCaseRequest): Promise<RegisterPetUseCaseResponse> {
     const org = await this.orgsRepository.findById(orgId);
@@ -94,33 +77,6 @@ export class RegisterPetUseCase {
       adoption_requirements: adoptionRequirementsIds,
     });
 
-    const petWithAdoptionRequirementsAndPhotos = Object.assign({}, pet, {
-      photos: [] as string[],
-    });
-
-    const photoIds = [];
-
-    try {
-      for (const photoObject of photos) {
-        const photo = await this.photosRepository.create({
-          file: photoObject.file,
-          petId: pet.id,
-        });
-
-        photoIds.push(photo.id);
-
-        petWithAdoptionRequirementsAndPhotos.photos.push(photo.url);
-      }
-    } catch (error) {
-      for (const id of photoIds) {
-        await this.photosRepository.delete(id);
-      }
-
-      await this.petsRepository.delete(pet.id);
-
-      throw error;
-    }
-
-    return { pet: petWithAdoptionRequirementsAndPhotos };
+    return { pet };
   }
 }
