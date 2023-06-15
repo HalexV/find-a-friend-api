@@ -16,6 +16,7 @@ import { RegisterPhotoUseCase } from './register-photo';
 import { InMemoryPetsRepository } from '@/repositories/in-memory/in-memory-pets-repository';
 import { InMemoryAdoptionRequirementsRepository } from '@/repositories/in-memory/in-memory-adoption-requirements-repository';
 import { InMemoryOrgsRepository } from '@/repositories/in-memory/in-memory-orgs-repository';
+import { ResourceNotFoundError } from '../errors/resource-not-found-error';
 
 const basePath = join(__dirname, '../../utils/test/images');
 
@@ -99,5 +100,25 @@ describe('Photos - Register Photo Use Case', () => {
     };
 
     expect(photo).toMatchObject(expectedPhoto);
+  });
+
+  it('should not be able to register a pet photo when pet does not exist', async () => {
+    const createdAt = new Date('2023-01-01');
+
+    vi.setSystemTime(createdAt);
+
+    const fd1 = await open(join(basePath, 'image1.jpg'));
+
+    const stream1 = fd1.createReadStream();
+
+    streams.push(stream1);
+
+    const promise = sut.execute({
+      petId: 'non-existent-id',
+      photo: { file: stream1, type: 'JPEG' },
+    });
+
+    await expect(promise).rejects.toBeInstanceOf(ResourceNotFoundError);
+    expect(stream1.destroyed).toBeTruthy();
   });
 });
