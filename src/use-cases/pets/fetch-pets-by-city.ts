@@ -4,11 +4,11 @@ import {
   Ambience,
   EnergyLevel,
   IndependenceLevel,
+  Pet,
   Size,
   Type,
 } from '@prisma/client';
 
-import { PetComplete } from './register-pet';
 import { ResourceNotFoundError } from '../errors/resource-not-found-error';
 import { PetsRepository } from '@/repositories/pets-repository';
 import { PhotosRepository } from '@/repositories/photos-repository';
@@ -25,6 +25,11 @@ interface FetchPetsFilters {
 interface FetchPetsByCityUseCaseRequest {
   city: string;
   filters?: FetchPetsFilters;
+}
+
+export interface PetComplete extends Pet {
+  adoption_requirements: string[];
+  photos: string[];
 }
 
 interface FetchPetsByCityUseCaseResponse {

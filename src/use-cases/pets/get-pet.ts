@@ -1,7 +1,7 @@
-import { PetComplete } from './register-pet';
 import { ResourceNotFoundError } from '../errors/resource-not-found-error';
 import { PetsRepository } from '@/repositories/pets-repository';
 import { PhotosRepository } from '@/repositories/photos-repository';
+import { PetComplete } from './fetch-pets-by-city';
 
 interface GetPetUseCaseRequest {
   petId: string;
