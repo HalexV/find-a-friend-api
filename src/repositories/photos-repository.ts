@@ -9,5 +9,6 @@ export interface PhotoCreateInput {
 export interface PhotosRepository {
   create(data: PhotoCreateInput): Promise<Photo>;
   delete(id: string): Promise<void>;
+  findById(id: string): Promise<Photo | null>;
   findManyByPetId(id: string): Promise<Photo[]>;
 }
