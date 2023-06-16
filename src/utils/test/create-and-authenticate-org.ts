@@ -1,3 +1,5 @@
+import { prisma } from '@/lib/prisma';
+import { Org } from '@prisma/client';
 import { FastifyInstance } from 'fastify';
 import request from 'supertest';
 
@@ -15,6 +17,8 @@ export async function createAndAuthenticateOrg(app: FastifyInstance) {
     whatsappNumber: '+55099911223344',
   });
 
+  const { id: orgId } = (await prisma.org.findFirst()) as Org;
+
   const authResponse = await request(app.server).post('/sessions').send({
     email: 'org@org.com',
     password: '12345678',
@@ -22,5 +26,5 @@ export async function createAndAuthenticateOrg(app: FastifyInstance) {
 
   const { token } = authResponse.body;
 
-  return { token };
+  return { token, orgId };
 }
