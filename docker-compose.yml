@@ -9,3 +9,14 @@ services:
       - POSTGRESQL_USERNAME=docker
       - POSTGRESQL_PASSWORD=docker
       - POSTGRESQL_DATABASE=find_a_friend_api
+  find-a-friend-aws-s3-mock:
+    image: adobe/s3mock
+    depends_on:
+      - find-a-friend-api-db-pg
+    ports:
+      - 9090:9090
+      - 9191:9191
+    environment:
+      - initialBuckets=photos
+      - retainFilesOnExit=true
+      - debug=true
