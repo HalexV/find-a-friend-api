@@ -14,5 +14,7 @@ export class RemovePhotoUseCase {
     if (!photo) {
       throw new ResourceNotFoundError();
     }
+
+    await this.photosRepository.delete(photo.id);
   }
 }
