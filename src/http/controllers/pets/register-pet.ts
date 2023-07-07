@@ -1,6 +1,8 @@
 import { InvalidImageTypeError } from '@/use-cases/errors/invalid-image-type-error';
 import { makeRegisterPetUseCase } from '@/use-cases/factories/make-register-pet-use-case';
 import { makeRegisterPhotoUseCase } from '@/use-cases/factories/make-register-photo-use-case';
+import { makeRemovePetUseCase } from '@/use-cases/factories/make-remove-pet-use-case';
+import { makeRemovePhotoUseCase } from '@/use-cases/factories/make-remove-photo-use-case';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
@@ -28,6 +30,8 @@ export async function registerPet(
 
   const registerPetUseCase = makeRegisterPetUseCase();
   const registerPhotoUseCase = makeRegisterPhotoUseCase();
+  const removePhotoUseCase = makeRemovePhotoUseCase();
+  const removePetUseCase = makeRemovePetUseCase();
 
   const fields = {};
   const parts = request.parts();
@@ -106,8 +110,11 @@ export async function registerPet(
     return reply.status(201).send();
   } catch (error) {
     if (isPetCreated) {
-      // caso de uso de remover as fotos
-      // caso de uso de remover o pet
+      for (const id of photoIds) {
+        await removePhotoUseCase.execute({ photoId: id });
+      }
+
+      await removePetUseCase.execute({ petId });
     }
 
     if (error instanceof InvalidImageTypeError) {
