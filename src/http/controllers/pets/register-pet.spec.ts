@@ -76,4 +76,40 @@ describe('Pets - Register Pet (e2e)', () => {
       .attach('photos', `${basePath}/image2.jpg`);
     expect(response.statusCode).toBe(400);
   });
+
+  it('should not be able to register a pet when some photo is invalid', async () => {
+    const { token, orgId } = await createAndAuthenticateOrg(app);
+    const { adoptionRequirementId: adoptionRequirementId1 } =
+      await createAdoptionRequirement(orgId, 'Need Cold Weather');
+    const { adoptionRequirementId: adoptionRequirementId2 } =
+      await createAdoptionRequirement(orgId, 'Require large yard');
+    const { adoptionRequirementId: adoptionRequirementId3 } =
+      await createAdoptionRequirement(orgId, 'Require large sofa');
+
+    const response = await request(app.server)
+      .post('/pets')
+      .set('Authorization', `Bearer ${token}`)
+      .field({
+        about: 'any',
+        adoptionRequirementsIds: [
+          adoptionRequirementId1,
+          adoptionRequirementId2,
+          adoptionRequirementId3,
+        ],
+        age: 'PUPPY',
+        ambience: 'MEDIUM',
+        available: true,
+        energyLevel: 'AVERAGE',
+        independenceLevel: 'HIGH',
+        name: 'Mark',
+        orgId,
+        size: 'MEDIUM',
+        type: 'DOG',
+      })
+      .attach('photos', `${basePath}/image1.jpg`)
+      .attach('photos', `${basePath}/image2.jpg`)
+      .attach('photos', `${basePath}/image1.png`);
+
+    expect(response.statusCode).toBe(400);
+  });
 });
