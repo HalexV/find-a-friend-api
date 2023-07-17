@@ -49,7 +49,7 @@ describe('Pets - Register Pet (e2e)', () => {
   });
 
   it('should not be able to register a pet when some pet information is invalid', async () => {
-    const { token, orgId } = await createAndAuthenticateOrg(app);
+    const { token } = await createAndAuthenticateOrg(app);
 
     const response = await request(app.server)
       .post('/pets')
