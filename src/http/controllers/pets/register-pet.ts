@@ -10,6 +10,7 @@ export async function registerPet(
   request: FastifyRequest,
   reply: FastifyReply
 ) {
+  const orgId = request.user.sub;
   const registerPetBodySchema = z.object({
     about: z.string(),
     age: z.enum(['PUPPY', 'ADULT', 'ELDERLY']),
@@ -20,7 +21,6 @@ export async function registerPet(
     name: z.string(),
     size: z.enum(['SMALL', 'MEDIUM', 'BIG']),
     type: z.enum(['CAT', 'DOG']),
-    orgId: z.string(),
     adoptionRequirementsIds: z.preprocess((value) => {
       if (Array.isArray(value)) return value;
 
@@ -54,7 +54,6 @@ export async function registerPet(
             energyLevel,
             independenceLevel,
             name,
-            orgId,
             size,
             type,
           } = registerPetBodySchema.parse(fields);
