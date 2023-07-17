@@ -40,7 +40,6 @@ describe('Pets - Register Pet (e2e)', () => {
         energyLevel: 'AVERAGE',
         independenceLevel: 'HIGH',
         name: 'Mark',
-        orgId,
         size: 'MEDIUM',
         type: 'DOG',
       })
@@ -51,24 +50,18 @@ describe('Pets - Register Pet (e2e)', () => {
 
   it('should not be able to register a pet when some pet information is invalid', async () => {
     const { token, orgId } = await createAndAuthenticateOrg(app);
-    const { adoptionRequirementId } = await createAdoptionRequirement(
-      orgId,
-      'Need Cold Weather'
-    );
 
     const response = await request(app.server)
       .post('/pets')
       .set('Authorization', `Bearer ${token}`)
       .field({
         about: 'any',
-        adoptionRequirementsIds: [adoptionRequirementId],
         age: 'INVALID',
         ambience: 'MEDIUM',
         available: true,
         energyLevel: 'AVERAGE',
         independenceLevel: 'HIGH',
         name: 'Mark',
-        orgId,
         size: 'MEDIUM',
         type: 'DOG',
       })
@@ -102,7 +95,6 @@ describe('Pets - Register Pet (e2e)', () => {
         energyLevel: 'AVERAGE',
         independenceLevel: 'HIGH',
         name: 'Mark',
-        orgId,
         size: 'MEDIUM',
         type: 'DOG',
       })
