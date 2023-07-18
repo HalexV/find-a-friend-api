@@ -1,3 +1,4 @@
+import { ExceededAmountFileError } from '@/use-cases/errors/exceeded-amount-files-error';
 import { InvalidImageTypeError } from '@/use-cases/errors/invalid-image-type-error';
 import { makeRegisterPetUseCase } from '@/use-cases/factories/make-register-pet-use-case';
 import { makeRegisterPhotoUseCase } from '@/use-cases/factories/make-register-photo-use-case';
@@ -36,6 +37,8 @@ export async function registerPet(
 
   const fields = {};
   const parts = request.parts();
+  const MAX_PHOTO_FILES = 6;
+  let photosCount = 0;
   let isPetCreated = false;
   let petId = '';
   const photoIds = [];
@@ -44,6 +47,12 @@ export async function registerPet(
     for await (const part of parts) {
       if (part.type === 'file') {
         if (part.mimetype !== 'image/jpeg') throw new InvalidImageTypeError();
+
+        photosCount += 1;
+
+        if (photosCount > MAX_PHOTO_FILES) {
+          throw new ExceededAmountFileError();
+        }
 
         if (!isPetCreated) {
           const {
@@ -119,6 +128,12 @@ export async function registerPet(
 
     if (error instanceof InvalidImageTypeError) {
       return reply.status(400).send({ message: error.message });
+    }
+
+    if (error instanceof ExceededAmountFileError) {
+      return reply.status(400).send({
+        message: `${error.message} Max amount is ${MAX_PHOTO_FILES}`,
+      });
     }
 
     throw error;
