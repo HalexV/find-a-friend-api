@@ -22,6 +22,7 @@ export async function registerPet(
     size: z.enum(['SMALL', 'MEDIUM', 'BIG']),
     type: z.enum(['CAT', 'DOG']),
     adoptionRequirementsIds: z.preprocess((value) => {
+      if (!value) return [];
       if (Array.isArray(value)) return value;
 
       return [value];
