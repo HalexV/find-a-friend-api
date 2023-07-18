@@ -104,4 +104,30 @@ describe('Pets - Register Pet (e2e)', () => {
 
     expect(response.statusCode).toBe(400);
   });
+
+  it('should return 400 when photos are not the last fields', async () => {
+    const { token } = await createAndAuthenticateOrg(app);
+
+    const response = await request(app.server)
+      .post('/pets')
+      .set('Authorization', `Bearer ${token}`)
+      .attach('photos', `${basePath}/image1.jpg`)
+      .field({
+        about: 'any',
+        age: 'PUPPY',
+        ambience: 'MEDIUM',
+        available: true,
+        energyLevel: 'AVERAGE',
+        independenceLevel: 'HIGH',
+        name: 'Mark',
+        size: 'MEDIUM',
+        type: 'DOG',
+      });
+
+    expect(response.statusCode).toBe(400);
+  });
+
+  it.todo('should return 400 when quantity of photos sent is greater than six');
+  it.todo('should return 400 when size of some photo is greater than 400 KB');
+  it.todo('should revert register when request is cancelled');
 });
