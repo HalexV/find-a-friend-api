@@ -8,13 +8,14 @@ import {
 } from '@aws-sdk/client-s3';
 import { randomUUID } from 'crypto';
 import { s3Client } from '@/lib/s3Client';
+import { Upload } from '@aws-sdk/lib-storage';
 import { prisma } from '@/lib/prisma';
 
 export class PrismaPhotosRepository implements PhotosRepository {
   async create(data: PhotoCreateInput): Promise<Photo> {
     const objectKey = `${randomUUID()}.jpeg`;
 
-    const params: PutObjectCommandInput = {
+    const params = {
       Bucket: 'photos',
       Key: objectKey,
       Body: data.file,
@@ -22,7 +23,10 @@ export class PrismaPhotosRepository implements PhotosRepository {
 
     const objectUrl = `http://localhost:9090/photos/${objectKey}`;
 
-    await s3Client.send(new PutObjectCommand(params));
+    await new Upload({
+      client: s3Client,
+      params,
+    }).done();
 
     const photo = await prisma.photo.create({
       data: {
