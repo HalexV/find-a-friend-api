@@ -1,10 +1,15 @@
 import { ExceededAmountFileError } from '@/use-cases/errors/exceeded-amount-files-error';
+import { ExceededSizeFileError } from '@/use-cases/errors/exceeded-size-file-error';
 import { InvalidImageTypeError } from '@/use-cases/errors/invalid-image-type-error';
 import { makeRegisterPetUseCase } from '@/use-cases/factories/make-register-pet-use-case';
 import { makeRegisterPhotoUseCase } from '@/use-cases/factories/make-register-photo-use-case';
 import { makeRemovePetUseCase } from '@/use-cases/factories/make-remove-pet-use-case';
 import { makeRemovePhotoUseCase } from '@/use-cases/factories/make-remove-photo-use-case';
+import { limitFileStreamSize } from '@/utils/limitFileStreamSize';
+import { Photo } from '@prisma/client';
 import { FastifyReply, FastifyRequest } from 'fastify';
+import { Readable } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
 import { z } from 'zod';
 
 export async function registerPet(
@@ -35,9 +40,17 @@ export async function registerPet(
   const removePhotoUseCase = makeRemovePhotoUseCase();
   const removePetUseCase = makeRemovePetUseCase();
 
+  function registerPhoto(stream: AsyncGenerator) {
+    return registerPhotoUseCase.execute({
+      petId,
+      photo: { file: Readable.from(stream), type: 'JPEG' },
+    });
+  }
+
   const fields = {};
   const parts = request.parts();
   const MAX_PHOTO_FILES = 6;
+  const MAX_PHOTO_SIZE = 400 * 1024;
   let photosCount = 0;
   let isPetCreated = false;
   let petId = '';
@@ -86,10 +99,11 @@ export async function registerPet(
           isPetCreated = true;
         }
 
-        const { photo } = await registerPhotoUseCase.execute({
-          petId,
-          photo: { file: part.file, type: 'JPEG' },
-        });
+        const { photo } = (await pipeline(
+          part.file,
+          limitFileStreamSize(MAX_PHOTO_SIZE),
+          registerPhoto as any
+        )) as { photo: Photo };
 
         photoIds.push(photo.id);
       } else {
@@ -133,6 +147,12 @@ export async function registerPet(
     if (error instanceof ExceededAmountFileError) {
       return reply.status(400).send({
         message: `${error.message} Max amount is ${MAX_PHOTO_FILES}`,
+      });
+    }
+
+    if (error instanceof ExceededSizeFileError) {
+      return reply.status(400).send({
+        message: error.message,
       });
     }
 
