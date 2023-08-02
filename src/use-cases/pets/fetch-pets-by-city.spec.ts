@@ -53,11 +53,12 @@ describe('Pets - Fetch Pets By City Use Case', () => {
     streams.forEach((stream) => stream.destroy());
   });
 
-  it('should not be able to fetch pets from a city that was not registered', async () => {
+  it('should not be able to fetch pets from a city and a state that was not registered', async () => {
     await orgsRepository.create({
       address: 'Avenida das nações nº 4040',
       cep: '99999000',
       city: 'colorado',
+      state: 'RO',
       email: 'org@org.com',
       latitude: -12.7569858,
       longitude: -60.1626287,
@@ -69,12 +70,13 @@ describe('Pets - Fetch Pets By City Use Case', () => {
 
     const promise = sut.execute({
       city: 'vilhena',
+      state: 'RO',
     });
 
     await expect(promise).rejects.toBeInstanceOf(ResourceNotFoundError);
   });
 
-  it('should be able to fetch pets from a city without filters', async () => {
+  it('should be able to fetch pets from a city and a state without filters', async () => {
     const fd1 = await open(join(basePath, 'image1.jpg'));
     const fd2 = await open(join(basePath, 'image2.jpg'));
 
@@ -87,6 +89,7 @@ describe('Pets - Fetch Pets By City Use Case', () => {
       address: 'Avenida das nações nº 4040',
       cep: '99999000',
       city: 'colorado',
+      state: 'RO',
       email: 'org@org.com',
       latitude: -12.7569858,
       longitude: -60.1626287,
@@ -100,6 +103,7 @@ describe('Pets - Fetch Pets By City Use Case', () => {
       address: 'Avenida das nações nº 4040',
       cep: '99999000',
       city: 'vilhena',
+      state: 'RO',
       email: 'org@org.com',
       latitude: -12.7569858,
       longitude: -60.1626287,
@@ -173,6 +177,7 @@ describe('Pets - Fetch Pets By City Use Case', () => {
 
     const { pets } = await sut.execute({
       city: 'Colorado',
+      state: 'RO',
     });
 
     const expectedPetMark = {
@@ -209,7 +214,7 @@ describe('Pets - Fetch Pets By City Use Case', () => {
     expect(pets[1]).toMatchObject(expectedPetCharles);
   });
 
-  it('should be able to fetch pets from a city with filters', async () => {
+  it('should be able to fetch pets from a city and a state with filters', async () => {
     const fd1 = await open(join(basePath, 'image1.jpg'));
     const fd2 = await open(join(basePath, 'image2.jpg'));
 
@@ -222,6 +227,7 @@ describe('Pets - Fetch Pets By City Use Case', () => {
       address: 'Avenida das nações nº 4040',
       cep: '99999000',
       city: 'colorado',
+      state: 'RO',
       email: 'org@org.com',
       latitude: -12.7569858,
       longitude: -60.1626287,
@@ -235,6 +241,7 @@ describe('Pets - Fetch Pets By City Use Case', () => {
       address: 'Avenida das nações nº 4040',
       cep: '99999000',
       city: 'vilhena',
+      state: 'RO',
       email: 'org@org.com',
       latitude: -12.7569858,
       longitude: -60.1626287,
@@ -322,10 +329,12 @@ describe('Pets - Fetch Pets By City Use Case', () => {
 
     const { pets: petsA } = await sut.execute({
       city: 'Colorado',
+      state: 'RO',
     });
 
     const { pets: petsB } = await sut.execute({
       city: 'Colorado',
+      state: 'RO',
       filters: {
         age: 'PUPPY',
         ambience: 'MEDIUM',
@@ -338,6 +347,7 @@ describe('Pets - Fetch Pets By City Use Case', () => {
 
     const { pets: petsC } = await sut.execute({
       city: 'Colorado',
+      state: 'RO',
       filters: {
         age: 'ADULT',
         type: ['CAT', 'DOG'],
@@ -346,6 +356,7 @@ describe('Pets - Fetch Pets By City Use Case', () => {
 
     const { pets: petsD } = await sut.execute({
       city: 'Vilhena',
+      state: 'RO',
       filters: {
         type: ['DOG'],
       },
@@ -353,6 +364,7 @@ describe('Pets - Fetch Pets By City Use Case', () => {
 
     const { pets: petsE } = await sut.execute({
       city: 'Colorado',
+      state: 'RO',
       filters: {
         ambience: 'MEDIUM',
         type: ['CAT', 'DOG'],

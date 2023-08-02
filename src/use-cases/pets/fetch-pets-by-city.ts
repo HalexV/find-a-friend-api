@@ -6,6 +6,7 @@ import {
   IndependenceLevel,
   Pet,
   Size,
+  State,
   Type,
 } from '@prisma/client';
 
@@ -24,6 +25,7 @@ interface FetchPetsFilters {
 
 interface FetchPetsByCityUseCaseRequest {
   city: string;
+  state: State;
   filters?: FetchPetsFilters;
 }
 
@@ -45,11 +47,13 @@ export class FetchPetsByCityUseCase {
 
   async execute({
     city,
+    state,
     filters,
   }: FetchPetsByCityUseCaseRequest): Promise<FetchPetsByCityUseCaseResponse> {
-    const orgs = await this.orgsRepository.findManyByCity(
-      city.toLocaleLowerCase()
-    );
+    const orgs = await this.orgsRepository.findManyByStateAndCity({
+      city: city.toLocaleLowerCase(),
+      state,
+    });
 
     if (orgs.length === 0) {
       throw new ResourceNotFoundError();
