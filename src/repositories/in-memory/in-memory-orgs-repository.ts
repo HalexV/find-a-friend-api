@@ -1,4 +1,4 @@
-import { Prisma, Org } from '@prisma/client';
+import { Prisma, Org, State } from '@prisma/client';
 import { OrgsRepository } from '../orgs-repository';
 import { randomUUID } from 'node:crypto';
 
@@ -14,6 +14,7 @@ export class InMemoryOrgsRepository implements OrgsRepository {
       password_hash: data.password_hash,
       address: data.address,
       cep: data.cep,
+      state: data.state,
       city: data.city,
       latitude: new Prisma.Decimal(data.latitude.toString()),
       longitude: new Prisma.Decimal(data.longitude.toString()),
@@ -45,8 +46,10 @@ export class InMemoryOrgsRepository implements OrgsRepository {
     return org;
   }
 
-  async findManyByCity(city: string) {
-    const orgs = this.items.filter((org) => org.city === city);
+  async findManyByStateAndCity(data: { city: string; state: State }) {
+    const orgs = this.items.filter(
+      (org) => org.city === data.city && org.state === data.state
+    );
 
     return orgs;
   }
