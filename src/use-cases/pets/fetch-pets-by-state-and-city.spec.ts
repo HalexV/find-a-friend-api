@@ -8,7 +8,7 @@ import {
   afterAll,
 } from 'vitest';
 import { InMemoryOrgsRepository } from '@/repositories/in-memory/in-memory-orgs-repository';
-import { FetchPetsByCityUseCase } from './fetch-pets-by-city';
+import { FetchPetsByStateAndCityUseCase } from './fetch-pets-by-state-and-city';
 import { ResourceNotFoundError } from '../errors/resource-not-found-error';
 import { InMemoryPetsRepository } from '@/repositories/in-memory/in-memory-pets-repository';
 import { InMemoryAdoptionRequirementsRepository } from '@/repositories/in-memory/in-memory-adoption-requirements-repository';
@@ -26,7 +26,7 @@ let orgsRepository: InMemoryOrgsRepository;
 let adoptionRequirementsRepository: InMemoryAdoptionRequirementsRepository;
 let petsRepository: InMemoryPetsRepository;
 let photosRepository: InMemoryPhotosRepository;
-let sut: FetchPetsByCityUseCase;
+let sut: FetchPetsByStateAndCityUseCase;
 
 describe('Pets - Fetch Pets By City Use Case', () => {
   beforeEach(() => {
@@ -36,7 +36,7 @@ describe('Pets - Fetch Pets By City Use Case', () => {
     petsRepository = new InMemoryPetsRepository(adoptionRequirementsRepository);
     photosRepository = new InMemoryPhotosRepository();
 
-    sut = new FetchPetsByCityUseCase(
+    sut = new FetchPetsByStateAndCityUseCase(
       orgsRepository,
       petsRepository,
       photosRepository

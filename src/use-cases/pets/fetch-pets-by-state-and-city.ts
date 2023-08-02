@@ -38,7 +38,7 @@ interface FetchPetsByCityUseCaseResponse {
   pets: PetComplete[];
 }
 
-export class FetchPetsByCityUseCase {
+export class FetchPetsByStateAndCityUseCase {
   constructor(
     private orgsRepository: OrgsRepository,
     private petsRepository: PetsRepository,
