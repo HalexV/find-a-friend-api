@@ -8,6 +8,7 @@ export async function createAndAuthenticateOrg(app: FastifyInstance) {
     address: 'Avenida das nações nº 4040',
     cep: '99999000',
     city: 'Colorado',
+    state: 'RO',
     email: 'org@org.com',
     latitude: -12.7569858,
     longitude: -60.1626287,
