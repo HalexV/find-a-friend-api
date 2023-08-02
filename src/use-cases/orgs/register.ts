@@ -1,5 +1,5 @@
 import { OrgsRepository } from '@/repositories/orgs-repository';
-import { Org } from '@prisma/client';
+import { Org, State } from '@prisma/client';
 import { OrgAlreadyExistsError } from '../errors/org-already-exists-error';
 
 import argon2 from 'argon2';
@@ -8,6 +8,7 @@ interface RegisterUseCaseRequest {
   address: string;
   cep: string;
   city: string;
+  state: State;
   email: string;
   latitude: number;
   longitude: number;
@@ -28,6 +29,7 @@ export class RegisterUseCase {
     address,
     cep,
     city,
+    state,
     email,
     latitude,
     longitude,
@@ -48,6 +50,7 @@ export class RegisterUseCase {
       address,
       cep,
       city: city.toLocaleLowerCase(),
+      state,
       email,
       latitude,
       longitude,
