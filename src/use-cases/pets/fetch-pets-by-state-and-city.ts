@@ -14,7 +14,7 @@ import { ResourceNotFoundError } from '../errors/resource-not-found-error';
 import { PetsRepository } from '@/repositories/pets-repository';
 import { PhotosRepository } from '@/repositories/photos-repository';
 
-interface FetchPetsFilters {
+export interface FetchPetsFilters {
   age?: Age;
   ambience?: Ambience;
   energyLevel?: EnergyLevel;
