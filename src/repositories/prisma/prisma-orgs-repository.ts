@@ -1,4 +1,4 @@
-import { Prisma, Org } from '@prisma/client';
+import { Prisma, Org, State } from '@prisma/client';
 import { OrgsRepository } from '../orgs-repository';
 import { prisma } from '@/lib/prisma';
 
@@ -17,7 +17,11 @@ export class PrismaOrgsRepository implements OrgsRepository {
     return await prisma.org.findFirst({ where: { id } });
   }
 
-  async findManyByCity(city: string): Promise<Org[]> {
-    return await prisma.org.findMany({ where: { city } });
+  async findManyByStateAndCity(data: {
+    city: string;
+    state: State;
+  }): Promise<Org[]> {
+    const { city, state } = data;
+    return await prisma.org.findMany({ where: { city, state } });
   }
 }
