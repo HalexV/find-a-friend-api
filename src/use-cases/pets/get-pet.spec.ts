@@ -71,6 +71,7 @@ describe('Pets - Get Pet Use Case', () => {
       cep: '99999000',
       city: 'colorado',
       email: 'org@org.com',
+      state: 'RO',
       latitude: -12.7569858,
       longitude: -60.1626287,
       name: 'Org Adote',
