@@ -130,6 +130,12 @@ export async function registerPet(
       }
     }
 
+    if (photosCount === 0) {
+      return reply.status(400).send({
+        message: 'At least one pet photo is required!',
+      });
+    }
+
     return reply.status(201).send();
   } catch (error) {
     if (isPetCreated) {

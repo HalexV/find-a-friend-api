@@ -19,3 +19,7 @@ Nesse desafio desenvolveremos uma API para a adoção de animais, a FindAFriend 
 - [] O usuário que quer adotar, entrará em contato com a ORG via WhatsApp
 - [x] Todos os filtros, além da cidade, são opcionais
 - [x] Para uma ORG acessar a aplicação como admin, ela precisa estar logada
+
+## Lembretes
+
+- [x] Criar validação no controller de register pet quando pelo menos uma foto não for enviada.
