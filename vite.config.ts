@@ -12,6 +12,8 @@ export default defineConfig({
         'src/utils/test',
         'prisma',
         'src/lib',
+        'src/app.ts',
+        'src/server.ts',
       ],
     },
   },
