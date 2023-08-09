@@ -49,7 +49,9 @@ export async function fetchPetsByStateAndCity(
       .optional(),
     independenceLevel: z.enum(['LOW', 'AVERAGE', 'HIGH']).optional(),
     size: z.enum(['SMALL', 'MEDIUM', 'BIG']).optional(),
-    type: z.enum(['CAT', 'DOG']).optional(),
+    type: z
+      .union([z.array(z.enum(['CAT', 'DOG'])), z.enum(['CAT', 'DOG'])])
+      .optional(),
   });
 
   const { city, state } = requestParamsSchema.parse(request.params);

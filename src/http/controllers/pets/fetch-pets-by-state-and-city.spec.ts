@@ -19,9 +19,12 @@ describe('Pets - Fetch Pets By State and City (e2e)', () => {
   });
 
   it('should be able to fetch pets by state and city', async () => {
-    const response = await request(app.server).get('/pets/RO/colorado').query({
-      age: 'PUPPY',
-    });
+    const response = await request(app.server)
+      .get('/pets/RO/colorado')
+      .query({
+        age: 'PUPPY',
+        type: ['CAT', 'DOG'],
+      });
 
     expect(response.statusCode).toBe(200);
     expect(response.body.pets[0].name).toBe('Mark');
