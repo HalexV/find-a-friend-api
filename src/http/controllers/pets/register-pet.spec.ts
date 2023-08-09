@@ -198,5 +198,21 @@ describe('Pets - Register Pet (e2e)', () => {
     expect(response.statusCode).toBe(400);
   });
 
+  it('should return 401 when token is invalid', async () => {
+    const response = await request(app.server).post('/pets').field({
+      about: 'any',
+      adoptionRequirementsIds: [],
+      age: 'PUPPY',
+      ambience: 'MEDIUM',
+      available: true,
+      energyLevel: 'AVERAGE',
+      independenceLevel: 'HIGH',
+      name: 'Mark',
+      size: 'MEDIUM',
+      type: 'DOG',
+    });
+    expect(response.statusCode).toBe(401);
+  });
+
   it.todo('should revert register when request is cancelled');
 });
