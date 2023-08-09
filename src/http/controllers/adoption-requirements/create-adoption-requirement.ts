@@ -13,21 +13,13 @@ export async function createAdoptionRequirement(
 
   const { title } = createAdoptionRequirementBodySchema.parse(request.body);
 
-  try {
-    const createAdoptionRequirementUseCase =
-      makeCreateAdoptionRequirementUseCase();
+  const createAdoptionRequirementUseCase =
+    makeCreateAdoptionRequirementUseCase();
 
-    await createAdoptionRequirementUseCase.execute({
-      title,
-      orgId: request.user.sub,
-    });
+  await createAdoptionRequirementUseCase.execute({
+    title,
+    orgId: request.user.sub,
+  });
 
-    return reply.status(201).send();
-  } catch (error) {
-    if (error instanceof ResourceNotFoundError) {
-      return reply.status(404).send();
-    }
-
-    throw error;
-  }
+  return reply.status(201).send();
 }
